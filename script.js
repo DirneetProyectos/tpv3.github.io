@@ -119,14 +119,12 @@ function renderCategories() {
   });
 
   // Actualizar subcategorías cuando cambia la categoría seleccionada
-  categorySelect.addEventListener('change', () => renderSubcategories());
-  productCategorySelect.addEventListener('change', () => updateProductSubcategories());
+  productCategorySelect.addEventListener('change', updateProductSubcategories);
 }
 
 // Renderizar subcategorías
 function renderSubcategories() {
   subcategoriesList.innerHTML = '';
-  productSubcategorySelect.innerHTML = '<option value="">Sin subcategoría</option>';
 
   const selectedCatIndex = categorySelect.value;
   if (selectedCatIndex === '') return;
@@ -153,26 +151,17 @@ function renderSubcategories() {
     li.appendChild(input);
     li.appendChild(deleteBtn);
     subcategoriesList.appendChild(li);
-
-    // Opción en selector de subcategorías
-    const option = document.createElement('option');
-    option.value = subIndex;
-    option.textContent = subcategory.name;
-    productSubcategorySelect.appendChild(option);
   });
 }
 
 // Actualizar subcategorías en el selector de productos
 function updateProductSubcategories() {
   const selectedCatIndex = productCategorySelect.value;
-  if (selectedCatIndex === '') {
-    productSubcategorySelect.innerHTML = '<option value="">Sin subcategoría</option>';
-    return;
-  }
-
-  const category = categories[selectedCatIndex];
   productSubcategorySelect.innerHTML = '<option value="">Sin subcategoría</option>';
 
+  if (selectedCatIndex === '') return;
+
+  const category = categories[selectedCatIndex];
   if (!category.subcategories) return;
 
   category.subcategories.forEach((subcategory, subIndex) => {
@@ -250,97 +239,6 @@ function renderProducts() {
       });
     });
   });
-}
-
-// Renderizar botones de categorías
-function renderCategoriesButtons() {
-  categoriesButtons.innerHTML = '';
-
-  if (categories.length === 0) {
-    const message = document.createElement('p');
-    message.textContent = 'No hay categorías disponibles';
-    message.style.color = '#6c757d';
-    categoriesButtons.appendChild(message);
-    return;
-  }
-
-  categories.forEach((category, catIndex) => {
-    const btn = document.createElement('button');
-    btn.textContent = category.name;
-    btn.classList.add('btn', 'btn-primary');
-    btn.onclick = () => handleCategoryClick(catIndex);
-    categoriesButtons.appendChild(btn);
-  });
-}
-
-// Manejar clic en categoría
-function handleCategoryClick(catIndex) {
-  const category = categories[catIndex];
-
-  if (!category) {
-    console.error(`Categoría con índice ${catIndex} no encontrada`);
-    return;
-  }
-
-  if (category.subcategories && category.subcategories.length > 0) {
-    // Mostrar modal de subcategorías
-    subcategoryOptions.innerHTML = '';
-    category.subcategories.forEach((subcategory, subIndex) => {
-      const btn = document.createElement('button');
-      btn.textContent = subcategory.name;
-      btn.classList.add('btn', 'btn-primary');
-      btn.onclick = () => {
-        subcategoryModal.style.display = 'none';
-        filterProductsByCategory(catIndex, subIndex);
-      };
-      subcategoryOptions.appendChild(btn);
-    });
-    subcategoryModal.style.display = 'block';
-  } else {
-    // Mostrar productos directamente
-    filterProductsByCategory(catIndex);
-  }
-}
-
-// Filtrar productos por categoría y subcategoría
-function filterProductsByCategory(catIndex, subIndex = null) {
-  const category = categories[catIndex];
-  if (!category) {
-    console.error(`Categoría con índice ${catIndex} no encontrada`);
-    return;
-  }
-
-  productsButtons.innerHTML = '';
-
-  let productsToShow = [];
-
-  if (subIndex === null) {
-    // Mostrar productos sin subcategoría
-    productsToShow = category.products || [];
-  } else {
-    // Mostrar productos de la subcategoría
-    const subcategory = category.subcategories?.[subIndex];
-    if (!subcategory) {
-      console.error(`Subcategoría con índice ${subIndex} no encontrada en categoría ${catIndex}`);
-      return;
-    }
-    productsToShow = subcategory.products || [];
-  }
-
-  productsToShow.forEach(product => {
-    const btn = document.createElement('button');
-    btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
-    btn.classList.add('btn', 'btn-primary');
-    btn.onclick = () => addProductToCart(product.name, product.price);
-    productsButtons.appendChild(btn);
-  });
-
-  if (productsButtons.innerHTML === '') {
-    const message = document.createElement('p');
-    message.textContent = 'No hay productos disponibles';
-    message.style.color = '#6c757d';
-    productsButtons.appendChild(message);
-  }
 }
 
 // Añadir categoría
@@ -472,6 +370,7 @@ function editProduct(catIndex, subIndex, prodIndex) {
   productNameInput.value = product.name;
   productPriceInput.value = product.price;
   productCategorySelect.value = catIndex;
+  updateProductSubcategories(); // Actualizar subcategorías después de cambiar la categoría
   productSubcategorySelect.value = subIndex || '';
 
   deleteProduct(catIndex, subIndex, prodIndex);
