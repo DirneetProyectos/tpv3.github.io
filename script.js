@@ -87,8 +87,8 @@ function renderAll() {
 // Renderizar categorías
 function renderCategories() {
   categoriesList.innerHTML = '';
-  categorySelect.innerHTML = '';
-  productCategorySelect.innerHTML = '';
+  categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
+  productCategorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
 
   categories.forEach((category, catIndex) => {
     // Elemento en lista de gestión
@@ -117,6 +117,10 @@ function renderCategories() {
     categorySelect.appendChild(option);
     productCategorySelect.appendChild(option.cloneNode(true));
   });
+
+  // Actualizar subcategorías cuando cambia la categoría seleccionada
+  categorySelect.addEventListener('change', () => renderSubcategories());
+  productCategorySelect.addEventListener('change', () => updateProductSubcategories());
 }
 
 // Renderizar subcategorías
@@ -151,6 +155,27 @@ function renderSubcategories() {
     subcategoriesList.appendChild(li);
 
     // Opción en selector de subcategorías
+    const option = document.createElement('option');
+    option.value = subIndex;
+    option.textContent = subcategory.name;
+    productSubcategorySelect.appendChild(option);
+  });
+}
+
+// Actualizar subcategorías en el selector de productos
+function updateProductSubcategories() {
+  const selectedCatIndex = productCategorySelect.value;
+  if (selectedCatIndex === '') {
+    productSubcategorySelect.innerHTML = '<option value="">Sin subcategoría</option>';
+    return;
+  }
+
+  const category = categories[selectedCatIndex];
+  productSubcategorySelect.innerHTML = '<option value="">Sin subcategoría</option>';
+
+  if (!category.subcategories) return;
+
+  category.subcategories.forEach((subcategory, subIndex) => {
     const option = document.createElement('option');
     option.value = subIndex;
     option.textContent = subcategory.name;
