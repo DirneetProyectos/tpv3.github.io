@@ -28,6 +28,28 @@ const printTicketBtn = document.getElementById('print-ticket');
 let categories = [];
 let products = [];
 let cart = [];
+let ticketNumber = 1;
+
+// Cargar datos desde localStorage
+function loadFromLocalStorage() {
+  const savedData = localStorage.getItem('tpv_data');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    categories = data.categories || [];
+    products = data.products || [];
+    renderCategories();
+    renderProducts();
+  }
+}
+
+// Guardar datos en localStorage
+function saveToLocalStorage() {
+  const data = {
+    categories: categories,
+    products: products
+  };
+  localStorage.setItem('tpv_data', JSON.stringify(data));
+}
 
 // Función para abrir la ventana modal
 openModalBtn.addEventListener('click', () => {
@@ -73,6 +95,7 @@ function renderCategories() {
   });
 
   renderCategoriesButtons();
+  saveToLocalStorage();
 }
 
 // Función para renderizar botones de categorías
@@ -136,6 +159,8 @@ function renderProducts() {
     btn.onclick = () => addProductToCart(product.name, product.price);
     productsButtons.appendChild(btn);
   });
+
+  saveToLocalStorage();
 }
 
 // Función para filtrar productos por categoría
@@ -235,6 +260,7 @@ exportDataBtn.addEventListener('click', () => {
   a.click();
 
   URL.revokeObjectURL(url);
+  alert('Datos exportados correctamente.');
 });
 
 // Importar datos desde un archivo JSON
@@ -251,7 +277,8 @@ importFileInput.addEventListener('change', (event) => {
         products = data.products || [];
         renderCategories();
         renderProducts();
-        alert('Datos importados correctamente.');
+        saveToLocalStorage();
+        alert('Datos importados correctamente. Los datos locales han sido sobrescritos.');
       } catch (error) {
         alert('Error al importar el archivo JSON. Asegúrate de que el archivo sea válido.');
       }
@@ -263,33 +290,40 @@ importFileInput.addEventListener('change', (event) => {
 
 // Función para imprimir el ticket
 printTicketBtn.addEventListener('click', () => {
-  // Verifica si hay productos en el carrito
   if (cart.length === 0) {
     alert('No hay productos en el ticket para imprimir.');
     return;
   }
 
-  // Crear un nuevo documento PDF con jsPDF
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Configurar el contenido del ticket
-  let yOffset = 20; // Posición vertical inicial
+  // Detalles del ticket
+  const date = new Date();
+  const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  const ticketDetails = `Ticket #${ticketNumber}\nFecha: ${formattedDate}\n\n`;
+
+  let yOffset = 20;
   doc.setFontSize(18);
   doc.text('Ticket de Venta', 10, 10);
 
-  // Agregar los productos al ticket
+  doc.setFontSize(12);
+  doc.text(ticketDetails, 10, yOffset);
+  yOffset += 20;
+
   cart.forEach((item) => {
-    doc.setFontSize(12);
     doc.text(`${item.name} - ${item.price.toFixed(2)} €`, 10, yOffset);
     yOffset += 10;
   });
 
-  // Agregar el total
   doc.setFontSize(14);
   doc.text(`Total: ${totalAmount.textContent}`, 10, yOffset + 10);
 
-  // Abrir el cuadro de diálogo de impresión
   doc.autoPrint();
-  doc.output('dataurlnewwindow'); // Abre el PDF en una nueva ventana
+  doc.output('dataurlnewwindow');
+
+  ticketNumber++;
 });
+
+// Cargar datos al iniciar la aplicación
+loadFromLocalStorage();
