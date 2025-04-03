@@ -241,6 +241,97 @@ function renderProducts() {
   });
 }
 
+// Renderizar botones de categorías en la página principal
+function renderCategoriesButtons() {
+  categoriesButtons.innerHTML = '';
+
+  if (categories.length === 0) {
+    const message = document.createElement('p');
+    message.textContent = 'No hay categorías disponibles';
+    message.style.color = '#6c757d';
+    categoriesButtons.appendChild(message);
+    return;
+  }
+
+  categories.forEach((category, catIndex) => {
+    const btn = document.createElement('button');
+    btn.textContent = category.name;
+    btn.classList.add('btn', 'btn-primary', 'category-btn');
+    btn.onclick = () => handleCategoryClick(catIndex);
+    categoriesButtons.appendChild(btn);
+  });
+}
+
+// Manejar clic en categoría
+function handleCategoryClick(catIndex) {
+  const category = categories[catIndex];
+
+  if (!category) {
+    console.error(`Categoría con índice ${catIndex} no encontrada`);
+    return;
+  }
+
+  if (category.subcategories && category.subcategories.length > 0) {
+    // Mostrar modal de subcategorías
+    subcategoryOptions.innerHTML = '';
+    category.subcategories.forEach((subcategory, subIndex) => {
+      const btn = document.createElement('button');
+      btn.textContent = subcategory.name;
+      btn.classList.add('btn', 'btn-primary', 'subcategory-btn');
+      btn.onclick = () => {
+        subcategoryModal.style.display = 'none';
+        filterProductsByCategory(catIndex, subIndex);
+      };
+      subcategoryOptions.appendChild(btn);
+    });
+    subcategoryModal.style.display = 'block';
+  } else {
+    // Mostrar productos directamente
+    filterProductsByCategory(catIndex);
+  }
+}
+
+// Filtrar productos por categoría y subcategoría
+function filterProductsByCategory(catIndex, subIndex = null) {
+  const category = categories[catIndex];
+  if (!category) {
+    console.error(`Categoría con índice ${catIndex} no encontrada`);
+    return;
+  }
+
+  productsButtons.innerHTML = '';
+
+  let productsToShow = [];
+
+  if (subIndex === null) {
+    // Mostrar productos sin subcategoría
+    productsToShow = category.products || [];
+  } else {
+    // Mostrar productos de la subcategoría
+    const subcategory = category.subcategories?.[subIndex];
+    if (!subcategory) {
+      console.error(`Subcategoría con índice ${subIndex} no encontrada en categoría ${catIndex}`);
+      return;
+    }
+    productsToShow = subcategory.products || [];
+  }
+
+  productsToShow.forEach(product => {
+    const btn = document.createElement('button');
+    btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
+    btn.classList.add('btn', 'btn-primary');
+    btn.onclick = () => addProductToCart(product.name, product.price);
+    productsButtons.appendChild(btn);
+  });
+
+  if (productsButtons.innerHTML === '') {
+    const message = document.createElement('p');
+    message.textContent = 'No hay productos disponibles';
+    message.style.color = '#6c757d';
+    productsButtons.appendChild(message);
+  }
+}
+
 // Añadir categoría
 addCategoryBtn.addEventListener('click', () => {
   const categoryName = categoryInput.value.trim();
@@ -427,10 +518,6 @@ printTicketBtn.addEventListener('click', () => {
 // Modal
 function showModal(modalElement) {
   modalElement.style.display = 'block';
-  // Ajustar el contenido al tamaño de la pantalla
-  const modalContent = modalElement.querySelector('.modal-content');
-  modalContent.style.maxHeight = `${window.innerHeight * 0.8}px`;
-  modalContent.style.overflowY = 'auto';
 }
 
 function hideModal(modalElement) {

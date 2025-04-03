@@ -3,88 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TPV Moderno - Versión 2.0</title>
+  <title>TPV - Terminal Punto de Venta</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <!-- Panel de TPV -->
-    <div class="tpv-panel">
-      <header class="tpv-header">
-        <h1>TPV <span style="font-size: 0.8em; color: #6c757d;">(Versión 2.0)</span></h1>
-        <!-- Menú Hamburguesa -->
-        <div class="hamburger-menu">
-          <button id="menu-toggle" class="btn btn-primary">☰</button>
-          <div id="menu-options" class="menu-options">
-            <button id="open-modal" class="btn btn-secondary menu-option">Gestionar Categorías y Productos</button>
-            <button id="export-data" class="btn btn-secondary menu-option">Exportar Datos</button>
-            <label for="import-file" class="btn btn-secondary menu-option">Importar Datos</label>
-            <input type="file" id="import-file" accept=".json" style="display: none;">
-            <button id="reset-data" class="btn btn-danger menu-option">Reiniciar</button>
-          </div>
-        </div>
-      </header>
-      <div class="categories-buttons" id="categories-buttons"></div>
-      <div class="products-buttons" id="products-buttons"></div>
-      <div class="ticket-panel">
-        <h2>Ticket</h2>
-        <ul id="ticket-items"></ul>
-        <div class="total">Total: <span id="total-amount">0.00 €</span></div>
-        <div class="ticket-actions">
-          <button id="clear-ticket" class="btn btn-danger">Limpiar Ticket</button>
-          <button id="print-ticket" class="btn btn-success">Imprimir Ticket</button>
-        </div>
+    <!-- Menú Hamburguesa -->
+    <div class="hamburger-menu">
+      <button id="menu-toggle">☰ Menú</button>
+      <div id="menu-options" class="menu-options">
+        <div class="menu-option" id="open-modal">Gestionar Categorías y Productos</div>
+        <div class="menu-option" id="export-data">Exportar Datos</div>
+        <div class="menu-option" id="import-file-label">Importar Datos</div>
+        <div class="menu-option" id="reset-data">Reiniciar Todo</div>
       </div>
     </div>
 
     <!-- Modal de Gestión -->
     <div id="management-modal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Gestión</h2>
-        <section class="modal-body">
-          <div class="categories">
-            <h3>Categorías</h3>
-            <input type="text" id="category-input" class="input-field" placeholder="Nombre de la categoría">
-            <button id="add-category" class="btn btn-secondary">Añadir Categoría</button>
-            <ul id="categories-list" class="categories-grid"></ul>
+        <div class="modal-header">
+          <h2>Gestión de Categorías y Productos</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div>
+            <h3>Añadir Categoría</h3>
+            <input type="text" id="category-input" placeholder="Nombre de la categoría" class="input-field">
+            <button id="add-category" class="btn btn-primary">Añadir</button>
           </div>
-          <div class="subcategories">
-            <h3>Subcategorías</h3>
+          <div>
+            <h3>Añadir Subcategoría</h3>
             <select id="category-select" class="input-field"></select>
-            <input type="text" id="subcategory-input" class="input-field" placeholder="Nombre de la subcategoría">
-            <button id="add-subcategory" class="btn btn-secondary">Añadir Subcategoría</button>
-            <ul id="subcategories-list" class="categories-grid"></ul>
+            <input type="text" id="subcategory-input" placeholder="Nombre de la subcategoría" class="input-field">
+            <button id="add-subcategory" class="btn btn-primary">Añadir</button>
           </div>
-          <div class="products">
-            <h3>Productos</h3>
+          <div>
+            <h3>Añadir Producto</h3>
             <select id="product-category-select" class="input-field"></select>
-            <select id="product-subcategory-select" class="input-field">
-              <option value="">Sin subcategoría</option>
-            </select>
-            <input type="text" id="product-name" class="input-field" placeholder="Nombre del producto">
-            <input type="number" id="product-price" class="input-field" step="0.01" placeholder="Precio">
-            <button id="add-product" class="btn btn-secondary">Añadir Producto</button>
-            <ul id="products-list"></ul>
+            <select id="product-subcategory-select" class="input-field"></select>
+            <input type="text" id="product-name" placeholder="Nombre del producto" class="input-field">
+            <input type="number" id="product-price" placeholder="Precio" step="0.01" class="input-field">
+            <button id="add-product" class="btn btn-primary">Añadir</button>
           </div>
-        </section>
-        <footer class="modal-footer">
-          <button id="save-changes" class="btn btn-success">Guardar</button>
-          <button id="close-modal" class="btn btn-secondary">Cerrar</button>
-        </footer>
+        </div>
+        <div class="modal-footer">
+          <button id="save-changes" class="btn btn-success">Guardar Cambios</button>
+        </div>
       </div>
     </div>
 
     <!-- Modal de Subcategorías -->
     <div id="subcategory-modal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Selecciona una Subcategoría</h2>
-        <ul id="subcategory-options" class="categories-grid"></ul>
+        <div class="modal-header">
+          <h2>Selecciona una Subcategoría</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div id="subcategory-options" class="modal-body"></div>
       </div>
     </div>
+
+    <!-- Panel Principal -->
+    <div class="tpv-panel">
+      <h1>TPV - Terminal Punto de Venta</h1>
+      <div id="categories-buttons" class="categories-buttons"></div>
+      <div id="products-buttons" class="products-buttons"></div>
+      <div class="ticket-panel">
+        <h2>Ticket Actual</h2>
+        <ul id="ticket-items"></ul>
+        <p class="total">Total: <span id="total-amount">0.00 €</span></p>
+        <button id="clear-ticket" class="btn btn-danger">Limpiar Ticket</button>
+        <button id="print-ticket" class="btn btn-success">Imprimir Ticket</button>
+      </div>
+    </div>
+
+    <!-- Importar Archivo (Oculto) -->
+    <input type="file" id="import-file" style="display: none;">
   </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
