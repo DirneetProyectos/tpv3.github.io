@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TPV Moderno - Versión 2.0</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Panel de TPV -->
+    <div class="tpv-panel">
+      <header class="tpv-header">
+        <h1>TPV <span style="font-size: 0.8em; color: #6c757d;">(Versión 2.0)</span></h1>
+        <button id="open-modal" class="btn btn-primary">Gestionar Categorías y Productos</button>
+        <div class="file-actions">
+          <button id="export-data" class="btn btn-secondary">Exportar Datos</button>
+          <label for="import-file" class="btn btn-secondary">Importar Datos</label>
+          <input type="file" id="import-file" accept=".json" style="display: none;">
+          <button id="reset-data" class="btn btn-danger">Reiniciar</button>
+        </div>
+      </header>
+      <div class="categories-buttons" id="categories-buttons"></div>
+      <div class="products-buttons" id="products-buttons"></div>
+      <div class="ticket-panel">
+        <h2>Ticket</h2>
+        <ul id="ticket-items"></ul>
+        <div class="total">Total: <span id="total-amount">0.00 €</span></div>
+        <div class="ticket-actions">
+          <button id="clear-ticket" class="btn btn-danger">Limpiar Ticket</button>
+          <button id="print-ticket" class="btn btn-success">Imprimir Ticket</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Gestión -->
+    <div id="management-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Gestión</h2>
+        <section class="modal-body">
+          <div class="categories">
+            <h3>Categorías</h3>
+            <input type="text" id="category-input" class="input-field" placeholder="Nombre de la categoría">
+            <button id="add-category" class="btn btn-secondary">Añadir Categoría</button>
+            <ul id="categories-list" class="categories-grid"></ul>
+          </div>
+          <div class="subcategories">
+            <h3>Subcategorías</h3>
+            <select id="category-select" class="input-field"></select>
+            <input type="text" id="subcategory-input" class="input-field" placeholder="Nombre de la subcategoría">
+            <button id="add-subcategory" class="btn btn-secondary">Añadir Subcategoría</button>
+            <ul id="subcategories-list" class="categories-grid"></ul>
+          </div>
+          <div class="products">
+            <h3>Productos</h3>
+            <select id="product-category-select" class="input-field"></select>
+            <select id="product-subcategory-select" class="input-field">
+              <option value="">Sin subcategoría</option>
+            </select>
+            <input type="text" id="product-name" class="input-field" placeholder="Nombre del producto">
+            <input type="number" id="product-price" class="input-field" step="0.01" placeholder="Precio">
+            <button id="add-product" class="btn btn-secondary">Añadir Producto</button>
+            <ul id="products-list"></ul>
+          </div>
+        </section>
+        <footer class="modal-footer">
+          <button id="save-changes" class="btn btn-success">Guardar</button>
+          <button id="close-modal" class="btn btn-secondary">Cerrar</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal de Subcategorías -->
+    <div id="subcategory-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Selecciona una Subcategoría</h2>
+        <ul id="subcategory-options" class="categories-grid"></ul>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
