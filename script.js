@@ -8,7 +8,8 @@ const subcategoryInput = document.getElementById('subcategory-input');
 const addSubcategoryBtn = document.getElementById('add-subcategory');
 const subcategoriesList = document.getElementById('subcategories-list');
 
-const subcategorySelect = document.getElementById('subcategory-select');
+const productCategorySelect = document.getElementById('product-category-select');
+const productSubcategorySelect = document.getElementById('product-subcategory-select');
 const productNameInput = document.getElementById('product-name');
 const productPriceInput = document.getElementById('product-price');
 const addProductBtn = document.getElementById('add-product');
@@ -69,8 +70,10 @@ closeIcon.addEventListener('click', closeModal);
 function renderCategories() {
   categoriesList.innerHTML = '';
   categorySelect.innerHTML = '';
+  productCategorySelect.innerHTML = '';
 
   categories.forEach((category, index) => {
+    // Renderizar en la lista de categorías
     const li = document.createElement('li');
     li.dataset.index = index;
 
@@ -89,10 +92,17 @@ function renderCategories() {
     li.appendChild(deleteBtn);
     categoriesList.appendChild(li);
 
+    // Renderizar en el selector de categorías
     const option = document.createElement('option');
     option.value = index;
     option.textContent = category.name;
     categorySelect.appendChild(option);
+
+    // Renderizar en el selector de categorías para productos
+    const productOption = document.createElement('option');
+    productOption.value = index;
+    productOption.textContent = category.name;
+    productCategorySelect.appendChild(productOption);
   });
 
   saveToLocalStorage();
@@ -124,13 +134,14 @@ addCategoryBtn.addEventListener('click', () => {
 // Función para renderizar subcategorías
 function renderSubcategories() {
   subcategoriesList.innerHTML = '';
-  subcategorySelect.innerHTML = '';
+  productSubcategorySelect.innerHTML = '';
 
   const selectedCategoryIndex = categorySelect.value;
   if (selectedCategoryIndex === '') return;
 
   const selectedCategory = categories[selectedCategoryIndex];
   selectedCategory.subcategories.forEach((subcategory, index) => {
+    // Renderizar en la lista de subcategorías
     const li = document.createElement('li');
     li.dataset.index = index;
 
@@ -149,10 +160,11 @@ function renderSubcategories() {
     li.appendChild(deleteBtn);
     subcategoriesList.appendChild(li);
 
+    // Renderizar en el selector de subcategorías para productos
     const option = document.createElement('option');
-    option.value = `${selectedCategoryIndex}-${index}`;
+    option.value = index;
     option.textContent = subcategory.name;
-    subcategorySelect.appendChild(option);
+    productSubcategorySelect.appendChild(option);
   });
 
   saveToLocalStorage();
@@ -242,13 +254,27 @@ function filterProductsBySubcategory(categoryIndex, subcategoryIndex) {
 addProductBtn.addEventListener('click', () => {
   const productName = productNameInput.value.trim();
   const productPrice = parseFloat(productPriceInput.value);
-  const [categoryIndex, subcategoryIndex] = subcategorySelect.value.split('-').map(Number);
+  const categoryIndex = parseInt(productCategorySelect.value);
+  const subcategoryIndex = parseInt(productSubcategorySelect.value);
 
-  if (productName && !isNaN(productPrice) && categoryIndex >= 0 && subcategoryIndex >= 0) {
-    if (!categories[categoryIndex].subcategories[subcategoryIndex].products) {
-      categories[categoryIndex].subcategories[subcategoryIndex].products = [];
+  if (productName && !isNaN(productPrice) && categoryIndex >= 0) {
+    const category = categories[categoryIndex];
+
+    // Si hay subcategorías disponibles
+    if (category.subcategories.length > 0 && subcategoryIndex >= 0) {
+      if (!category.subcategories[subcategoryIndex].products) {
+        category.subcategories[subcategoryIndex].products = [];
+      }
+      category.subcategories[subcategoryIndex].products.push({ name: productName, price: productPrice });
+    } else {
+      // Si no hay subcategorías, añadir directamente a la categoría
+      if (!category.products) {
+        category.products = [];
+      }
+      category.products.push({ name: productName, price: productPrice });
     }
-    categories[categoryIndex].subcategories[subcategoryIndex].products.push({ name: productName, price: productPrice });
+
+    // Limpiar campos
     productNameInput.value = '';
     productPriceInput.value = '';
     renderProducts();
@@ -260,7 +286,8 @@ function editProduct(categoryIndex, subcategoryIndex, productIndex) {
   const product = categories[categoryIndex].subcategories[subcategoryIndex].products[productIndex];
   productNameInput.value = product.name;
   productPriceInput.value = product.price;
-  subcategorySelect.value = `${categoryIndex}-${subcategoryIndex}`;
+  productCategorySelect.value = categoryIndex;
+  productSubcategorySelect.value = subcategoryIndex;
 
   deleteProduct(categoryIndex, subcategoryIndex, productIndex);
 }
@@ -368,7 +395,6 @@ printTicketBtn.addEventListener('click', () => {
 
 // Botón "Guardar"
 saveChangesBtn.addEventListener('click', () => {
-  // Guardar todos los cambios en localStorage
   saveToLocalStorage();
   alert('Cambios guardados exitosamente.');
 });
