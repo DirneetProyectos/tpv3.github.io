@@ -30,6 +30,7 @@ const closeIcon = document.querySelector('.close');
 const exportDataBtn = document.getElementById('export-data');
 const importFileInput = document.getElementById('import-file');
 const printTicketBtn = document.getElementById('print-ticket');
+const resetDataBtn = document.getElementById('reset-data'); // Botón Reiniciar
 
 let categories = [];
 let cart = [];
@@ -46,6 +47,10 @@ function loadFromLocalStorage() {
     renderProducts();
     renderCategoriesButtons(); // Renderizar botones de categorías en la página principal
     filterProductsByCategory(0); // Mostrar productos de la primera categoría por defecto
+  } else {
+    // Si no hay datos guardados, inicializar arrays vacíos
+    categories = [];
+    renderCategoriesButtons(); // Asegurarse de que los botones de categorías estén vacíos
   }
 }
 
@@ -73,6 +78,8 @@ function renderCategories() {
   categoriesList.innerHTML = '';
   categorySelect.innerHTML = '';
   productCategorySelect.innerHTML = '';
+
+  if (categories.length === 0) return;
 
   categories.forEach((category, index) => {
     // Renderizar en la lista de categorías
@@ -142,6 +149,8 @@ function renderSubcategories() {
   if (selectedCategoryIndex === '') return;
 
   const selectedCategory = categories[selectedCategoryIndex];
+  if (!selectedCategory.subcategories) return;
+
   selectedCategory.subcategories.forEach((subcategory, index) => {
     // Renderizar en la lista de subcategorías
     const li = document.createElement('li');
@@ -190,6 +199,9 @@ addSubcategoryBtn.addEventListener('click', () => {
   const selectedCategoryIndex = categorySelect.value;
 
   if (subcategoryName && selectedCategoryIndex !== '') {
+    if (!categories[selectedCategoryIndex].subcategories) {
+      categories[selectedCategoryIndex].subcategories = [];
+    }
     categories[selectedCategoryIndex].subcategories.push({ name: subcategoryName, products: [] });
     subcategoryInput.value = '';
     renderSubcategories();
@@ -202,7 +214,7 @@ function renderProducts() {
   productsButtons.innerHTML = '';
 
   categories.forEach((category, categoryIndex) => {
-    category.subcategories.forEach((subcategory, subcategoryIndex) => {
+    category.subcategories?.forEach((subcategory, subcategoryIndex) => {
       subcategory.products?.forEach((product, productIndex) => {
         const li = document.createElement('li');
         li.textContent = `${product.name} - ${product.price.toFixed(2)} € (${category.name} > ${subcategory.name})`;
@@ -240,33 +252,66 @@ function renderProducts() {
 function filterProductsByCategory(categoryIndex) {
   productsButtons.innerHTML = '';
 
+  if (categories.length === 0) {
+    const message = document.createElement('p');
+    message.textContent = 'No hay productos disponibles.';
+    message.style.color = '#6c757d';
+    productsButtons.appendChild(message);
+    return;
+  }
+
   const category = categories[categoryIndex];
   if (!category) return;
 
   // Mostrar productos de subcategorías
-  category.subcategories.forEach((subcategory) => {
-    subcategory.products?.forEach((product) => {
+  if (category.subcategories && category.subcategories.length > 0) {
+    category.subcategories.forEach((subcategory) => {
+      if (subcategory.products && subcategory.products.length > 0) {
+        subcategory.products.forEach((product) => {
+          const btn = document.createElement('button');
+          btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
+          btn.classList.add('btn', 'btn-primary');
+          btn.onclick = () => addProductToCart(product.name, product.price);
+          productsButtons.appendChild(btn);
+        });
+      }
+    });
+  }
+
+  // Mostrar productos directamente en la categoría (sin subcategorías)
+  if (category.products && category.products.length > 0) {
+    category.products.forEach((product) => {
       const btn = document.createElement('button');
       btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
       btn.classList.add('btn', 'btn-primary');
       btn.onclick = () => addProductToCart(product.name, product.price);
       productsButtons.appendChild(btn);
     });
-  });
+  }
 
-  // Mostrar productos directamente en la categoría (sin subcategorías)
-  category.products?.forEach((product) => {
-    const btn = document.createElement('button');
-    btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
-    btn.classList.add('btn', 'btn-primary');
-    btn.onclick = () => addProductToCart(product.name, product.price);
-    productsButtons.appendChild(btn);
-  });
+  // Mensaje si no hay productos en la categoría
+  if (
+    (!category.subcategories || category.subcategories.every(sub => !sub.products || sub.products.length === 0)) &&
+    (!category.products || category.products.length === 0)
+  ) {
+    const message = document.createElement('p');
+    message.textContent = 'No hay productos disponibles en esta categoría.';
+    message.style.color = '#6c757d';
+    productsButtons.appendChild(message);
+  }
 }
 
 // Función para renderizar botones de categorías en la página principal
 function renderCategoriesButtons() {
   categoriesButtons.innerHTML = '';
+
+  if (categories.length === 0) {
+    const message = document.createElement('p');
+    message.textContent = 'No hay categorías disponibles.';
+    message.style.color = '#6c757d';
+    categoriesButtons.appendChild(message);
+    return;
+  }
 
   categories.forEach((category, categoryIndex) => {
     const btn = document.createElement('button');
@@ -388,6 +433,22 @@ printTicketBtn.addEventListener('click', () => {
   doc.text(`Total: ${total.toFixed(2)} €`, 10, yPos);
 
   doc.save(`ticket-${ticketNumber++}.pdf`);
+});
+
+// Botón "Reiniciar"
+resetDataBtn.addEventListener('click', () => {
+  const confirmReset = confirm('¿Estás seguro de que quieres eliminar todos los datos almacenados? Esta acción no se puede deshacer.');
+  if (confirmReset) {
+    localStorage.removeItem('tpv_data'); // Eliminar datos de localStorage
+    categories = []; // Limpiar las variables
+    cart = [];
+    updateTicket(); // Limpiar el ticket
+    renderCategories(); // Limpiar la interfaz
+    renderSubcategories();
+    renderProducts();
+    renderCategoriesButtons();
+    alert('Todos los datos han sido eliminados.');
+  }
 });
 
 // Botón "Guardar"
