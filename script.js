@@ -44,6 +44,8 @@ function loadFromLocalStorage() {
     renderCategories();
     renderSubcategories();
     renderProducts();
+    renderCategoriesButtons(); // Renderizar botones de categorías en la página principal
+    filterProductsByCategory(0); // Mostrar productos de la primera categoría por defecto
   }
 }
 
@@ -234,14 +236,26 @@ function renderProducts() {
   saveToLocalStorage();
 }
 
-// Función para filtrar productos por subcategoría
-function filterProductsBySubcategory(categoryIndex, subcategoryIndex) {
+// Función para filtrar productos por categoría en la página principal
+function filterProductsByCategory(categoryIndex) {
   productsButtons.innerHTML = '';
 
-  const subcategory = categories[categoryIndex]?.subcategories[subcategoryIndex];
-  if (!subcategory) return;
+  const category = categories[categoryIndex];
+  if (!category) return;
 
-  subcategory.products?.forEach(product => {
+  // Mostrar productos de subcategorías
+  category.subcategories.forEach((subcategory) => {
+    subcategory.products?.forEach((product) => {
+      const btn = document.createElement('button');
+      btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
+      btn.classList.add('btn', 'btn-primary');
+      btn.onclick = () => addProductToCart(product.name, product.price);
+      productsButtons.appendChild(btn);
+    });
+  });
+
+  // Mostrar productos directamente en la categoría (sin subcategorías)
+  category.products?.forEach((product) => {
     const btn = document.createElement('button');
     btn.textContent = `${product.name} - ${product.price.toFixed(2)} €`;
     btn.classList.add('btn', 'btn-primary');
@@ -250,36 +264,18 @@ function filterProductsBySubcategory(categoryIndex, subcategoryIndex) {
   });
 }
 
-// Función para añadir un producto
-addProductBtn.addEventListener('click', () => {
-  const productName = productNameInput.value.trim();
-  const productPrice = parseFloat(productPriceInput.value);
-  const categoryIndex = parseInt(productCategorySelect.value);
-  const subcategoryIndex = parseInt(productSubcategorySelect.value);
+// Función para renderizar botones de categorías en la página principal
+function renderCategoriesButtons() {
+  categoriesButtons.innerHTML = '';
 
-  if (productName && !isNaN(productPrice) && categoryIndex >= 0) {
-    const category = categories[categoryIndex];
-
-    // Si hay subcategorías disponibles
-    if (category.subcategories.length > 0 && subcategoryIndex >= 0) {
-      if (!category.subcategories[subcategoryIndex].products) {
-        category.subcategories[subcategoryIndex].products = [];
-      }
-      category.subcategories[subcategoryIndex].products.push({ name: productName, price: productPrice });
-    } else {
-      // Si no hay subcategorías, añadir directamente a la categoría
-      if (!category.products) {
-        category.products = [];
-      }
-      category.products.push({ name: productName, price: productPrice });
-    }
-
-    // Limpiar campos
-    productNameInput.value = '';
-    productPriceInput.value = '';
-    renderProducts();
-  }
-});
+  categories.forEach((category, categoryIndex) => {
+    const btn = document.createElement('button');
+    btn.textContent = category.name;
+    btn.classList.add('btn', 'btn-primary');
+    btn.onclick = () => filterProductsByCategory(categoryIndex);
+    categoriesButtons.appendChild(btn);
+  });
+}
 
 // Función para editar un producto
 function editProduct(categoryIndex, subcategoryIndex, productIndex) {
@@ -360,6 +356,7 @@ importFileInput.addEventListener('change', event => {
         renderCategories();
         renderSubcategories();
         renderProducts();
+        renderCategoriesButtons();
         alert('Datos importados exitosamente.');
       } catch (error) {
         alert('Error al importar los datos. Asegúrate de que el archivo sea válido.');
