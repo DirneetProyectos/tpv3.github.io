@@ -77,7 +77,7 @@ function renderAll() {
   renderSubcategories();
   renderProducts();
   renderCategoriesButtons();
-  filterProductsByCategory(0);
+  filterProductsByCategory(0); // Filtrar productos por la primera categoría
 }
 
 // Renderizar categorías
@@ -227,6 +227,14 @@ function renderProducts() {
 function renderCategoriesButtons() {
   categoriesButtons.innerHTML = '';
 
+  if (categories.length === 0) {
+    const message = document.createElement('p');
+    message.textContent = 'No hay categorías disponibles';
+    message.style.color = '#6c757d';
+    categoriesButtons.appendChild(message);
+    return;
+  }
+
   categories.forEach((category, catIndex) => {
     const btn = document.createElement('button');
     btn.textContent = category.name;
@@ -267,13 +275,13 @@ function handleCategoryClick(catIndex) {
 
 // Filtrar productos por categoría y subcategoría
 function filterProductsByCategory(catIndex, subIndex = null) {
-  productsButtons.innerHTML = '';
-
   const category = categories[catIndex];
   if (!category) {
     console.error(`Categoría con índice ${catIndex} no encontrada`);
     return;
   }
+
+  productsButtons.innerHTML = '';
 
   let productsToShow = [];
 
