@@ -48,9 +48,8 @@ function loadFromLocalStorage() {
     renderCategoriesButtons(); // Renderizar botones de categorías en la página principal
     filterProductsByCategory(0); // Mostrar productos de la primera categoría por defecto
   } else {
-    // Si no hay datos guardados, inicializar arrays vacíos
     categories = [];
-    renderCategoriesButtons(); // Asegurarse de que los botones de categorías estén vacíos
+    renderCategoriesButtons();
   }
 }
 
@@ -490,6 +489,8 @@ addProductBtn.addEventListener('click', () => {
 
   // Renderizar productos y guardar en localStorage
   renderProducts();
+  renderCategoriesButtons();
+  filterProductsByCategory(selectedCategoryIndex); // Actualizar la pantalla de inicio
   saveToLocalStorage();
 
   alert('Producto añadido exitosamente.');
