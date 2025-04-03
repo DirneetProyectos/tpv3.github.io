@@ -176,7 +176,7 @@ addSubcategoryBtn.addEventListener('click', () => {
   const selectedCategoryIndex = categorySelect.value;
 
   if (subcategoryName && selectedCategoryIndex !== '') {
-    categories[selectedCategoryIndex].subcategories.push({ name: subcategoryName });
+    categories[selectedCategoryIndex].subcategories.push({ name: subcategoryName, products: [] });
     subcategoryInput.value = '';
     renderSubcategories();
   }
@@ -364,6 +364,13 @@ printTicketBtn.addEventListener('click', () => {
   doc.text(`Total: ${total.toFixed(2)} €`, 10, yPos);
 
   doc.save(`ticket-${ticketNumber++}.pdf`);
+});
+
+// Botón "Guardar"
+saveChangesBtn.addEventListener('click', () => {
+  // Guardar todos los cambios en localStorage
+  saveToLocalStorage();
+  alert('Cambios guardados exitosamente.');
 });
 
 // Cargar datos al iniciar
