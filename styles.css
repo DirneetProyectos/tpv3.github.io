@@ -46,10 +46,45 @@ body {
   flex: 1;
 }
 
-.file-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.hamburger-menu {
+  position: relative;
+}
+
+#menu-toggle {
+  font-size: 1.5rem;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.menu-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 200px;
+  overflow: hidden;
+}
+
+.menu-options.show {
+  display: block;
+}
+
+.menu-option {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.menu-option:last-child {
+  border-bottom: none;
 }
 
 .categories-buttons,
@@ -139,6 +174,8 @@ body {
   width: 90%;
   max-width: 600px;
   animation: fadeIn 0.3s ease-in-out;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .modal-header {

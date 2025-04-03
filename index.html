@@ -13,12 +13,16 @@
     <div class="tpv-panel">
       <header class="tpv-header">
         <h1>TPV <span style="font-size: 0.8em; color: #6c757d;">(Versión 2.0)</span></h1>
-        <button id="open-modal" class="btn btn-primary">Gestionar Categorías y Productos</button>
-        <div class="file-actions">
-          <button id="export-data" class="btn btn-secondary">Exportar Datos</button>
-          <label for="import-file" class="btn btn-secondary">Importar Datos</label>
-          <input type="file" id="import-file" accept=".json" style="display: none;">
-          <button id="reset-data" class="btn btn-danger">Reiniciar</button>
+        <!-- Menú Hamburguesa -->
+        <div class="hamburger-menu">
+          <button id="menu-toggle" class="btn btn-primary">☰</button>
+          <div id="menu-options" class="menu-options">
+            <button id="open-modal" class="btn btn-secondary menu-option">Gestionar Categorías y Productos</button>
+            <button id="export-data" class="btn btn-secondary menu-option">Exportar Datos</button>
+            <label for="import-file" class="btn btn-secondary menu-option">Importar Datos</label>
+            <input type="file" id="import-file" accept=".json" style="display: none;">
+            <button id="reset-data" class="btn btn-danger menu-option">Reiniciar</button>
+          </div>
         </div>
       </header>
       <div class="categories-buttons" id="categories-buttons"></div>

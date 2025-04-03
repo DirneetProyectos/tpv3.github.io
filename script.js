@@ -36,6 +36,10 @@ const resetDataBtn = document.getElementById('reset-data');
 const subcategoryModal = document.getElementById('subcategory-modal');
 const subcategoryOptions = document.getElementById('subcategory-options');
 
+// Menú hamburguesa
+const menuToggle = document.getElementById('menu-toggle');
+const menuOptions = document.getElementById('menu-options');
+
 let categories = [];
 let cart = [];
 let ticketNumber = 1;
@@ -559,6 +563,11 @@ resetDataBtn.addEventListener('click', () => {
     renderAll();
     updateTicket();
   }
+});
+
+// Menú hamburguesa
+menuToggle.addEventListener('click', () => {
+  menuOptions.classList.toggle('show');
 });
 
 // Inicializar
