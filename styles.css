@@ -294,8 +294,3 @@ body {
 .modal-body > div:not(:last-child) {
   margin-bottom: 20px;
 }
-
-  .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
