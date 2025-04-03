@@ -22,10 +22,9 @@ const totalAmount = document.getElementById('total-amount');
 const clearTicketBtn = document.getElementById('clear-ticket');
 
 const openModalBtn = document.getElementById('open-modal');
-const closeModalBtn = document.getElementById('close-modal');
+const closeModalBtn = document.querySelector('#management-modal .close');
 const saveChangesBtn = document.getElementById('save-changes');
 const modal = document.getElementById('management-modal');
-const closeIcon = document.querySelector('.close');
 
 const exportDataBtn = document.getElementById('export-data');
 const importFileInput = document.getElementById('import-file');
@@ -44,7 +43,7 @@ let categories = [];
 let cart = [];
 let ticketNumber = 1;
 
-// Cargar datos
+// Cargar datos desde LocalStorage
 function loadFromLocalStorage() {
   const savedData = localStorage.getItem('tpv_data');
   if (savedData) {
@@ -70,7 +69,7 @@ function loadFromLocalStorage() {
   renderAll();
 }
 
-// Guardar datos
+// Guardar datos en LocalStorage
 function saveToLocalStorage() {
   localStorage.setItem('tpv_data', JSON.stringify({ categories }));
 }
@@ -526,7 +525,7 @@ function hideModal(modalElement) {
 
 openModalBtn.addEventListener('click', () => showModal(modal));
 
-[closeModalBtn, closeIcon].forEach(btn => 
+[closeModalBtn].forEach(btn => 
   btn.addEventListener('click', () => hideModal(modal))
 );
 

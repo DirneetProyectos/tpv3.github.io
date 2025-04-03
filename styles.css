@@ -1,4 +1,4 @@
-/* Estilo general */
+/* Estilos generales */
 * {
   margin: 0;
   padding: 0;
@@ -67,12 +67,12 @@ body {
 .btn-primary { background: #007bff; color: #fff; }
 .btn-primary:hover { background: #0056b3; }
 
-.btn-danger { 
-  background: #dc3545; 
-  color: #fff; 
-  padding: 5px 8px; 
-  font-size: 0.8rem; 
-  margin-left: 5px; 
+.btn-danger {
+  background: #dc3545;
+  color: #fff;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  margin-left: 5px;
 }
 .btn-danger:hover { background: #c82333; }
 
@@ -204,6 +204,21 @@ body {
 
 .menu-option:last-child {
   border-bottom: none;
+}
+
+.hamburger-menu {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+#menu-toggle {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 @keyframes fadeIn {
