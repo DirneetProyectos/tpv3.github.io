@@ -234,7 +234,7 @@ body {
   }
 }
 
-/* Cuadrícula de categorías */
+/* Cuadrícula de categorías y subcategorías */
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -275,6 +275,25 @@ body {
   .ticket-actions button {
     width: 100%;
   }
+
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Estilos específicos para subcategorías */
+.subcategories {
+  margin-top: 20px;
+}
+
+#subcategories-list {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Separación visual entre secciones en la modal */
+.modal-body > div:not(:last-child) {
+  margin-bottom: 20px;
+}
 
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
