@@ -501,16 +501,27 @@ printTicketBtn.addEventListener('click', () => {
 });
 
 // Modal
-openModalBtn.addEventListener('click', () => modal.style.display = 'block');
+function showModal(modalElement) {
+  modalElement.style.display = 'block';
+  // Ajustar el contenido al tamaño de la pantalla
+  const modalContent = modalElement.querySelector('.modal-content');
+  modalContent.style.maxHeight = `${window.innerHeight * 0.8}px`;
+  modalContent.style.overflowY = 'auto';
+}
+
+function hideModal(modalElement) {
+  modalElement.style.display = 'none';
+}
+
+openModalBtn.addEventListener('click', () => showModal(modal));
+
 [closeModalBtn, closeIcon].forEach(btn => 
-  btn.addEventListener('click', () => modal.style.display = 'none')
+  btn.addEventListener('click', () => hideModal(modal))
 );
 
 // Cerrar modal de subcategorías
 document.querySelectorAll('#subcategory-modal .close').forEach(closeBtn => {
-  closeBtn.addEventListener('click', () => {
-    subcategoryModal.style.display = 'none';
-  });
+  closeBtn.addEventListener('click', () => hideModal(subcategoryModal));
 });
 
 // Exportar datos
@@ -568,6 +579,13 @@ resetDataBtn.addEventListener('click', () => {
 // Menú hamburguesa
 menuToggle.addEventListener('click', () => {
   menuOptions.classList.toggle('show');
+});
+
+// Cerrar menú hamburguesa al seleccionar una opción
+document.querySelectorAll('.menu-option').forEach(option => {
+  option.addEventListener('click', () => {
+    menuOptions.classList.remove('show');
+  });
 });
 
 // Inicializar
