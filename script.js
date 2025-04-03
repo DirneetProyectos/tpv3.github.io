@@ -77,15 +77,21 @@ function renderCategories() {
 
   categories.forEach((category, index) => {
     const li = document.createElement('li');
-    li.textContent = category.name;
     li.dataset.index = index;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = category.name;
+    input.classList.add('input-field');
+    input.onblur = () => updateCategoryName(index, input.value);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Eliminar';
     deleteBtn.classList.add('btn', 'btn-danger');
     deleteBtn.onclick = () => deleteCategory(index);
-    li.appendChild(deleteBtn);
 
+    li.appendChild(input);
+    li.appendChild(deleteBtn);
     categoriesList.appendChild(li);
 
     const option = document.createElement('option');
@@ -95,6 +101,83 @@ function renderCategories() {
   });
 
   renderCategoriesButtons();
+  saveToLocalStorage();
+
+  // Habilitar drag-and-drop
+  enableDragAndDrop();
+}
+
+// Función para actualizar el nombre de una categoría
+function updateCategoryName(index, newName) {
+  categories[index].name = newName.trim();
+  renderCategories();
+}
+
+// Función para habilitar drag-and-drop
+function enableDragAndDrop() {
+  const items = document.querySelectorAll('#categories-list li');
+
+  let draggedItem = null;
+
+  items.forEach(item => {
+    item.draggable = true;
+
+    item.addEventListener('dragstart', () => {
+      draggedItem = item;
+      setTimeout(() => (item.style.display = 'none'), 0);
+    });
+
+    item.addEventListener('dragend', () => {
+      setTimeout(() => {
+        draggedItem.style.display = 'flex';
+        draggedItem = null;
+      }, 0);
+    });
+
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(categoriesList, e.clientY);
+      if (afterElement == null) {
+        categoriesList.appendChild(draggedItem);
+      } else {
+        categoriesList.insertBefore(draggedItem, afterElement);
+      }
+    });
+  });
+
+  // Actualizar el orden de las categorías
+  updateCategoriesOrder();
+}
+
+// Función para obtener la posición del elemento al soltarlo
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+
+  return draggableElements.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
+      }
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
+}
+
+// Función para actualizar el orden de las categorías
+function updateCategoriesOrder() {
+  const updatedCategories = [];
+  const items = document.querySelectorAll('#categories-list li');
+
+  items.forEach(item => {
+    const index = parseInt(item.dataset.index);
+    updatedCategories.push(categories[index]);
+  });
+
+  categories = updatedCategories;
   saveToLocalStorage();
 }
 
@@ -258,72 +341,53 @@ exportDataBtn.addEventListener('click', () => {
   a.href = url;
   a.download = 'tpv_data.json';
   a.click();
-
   URL.revokeObjectURL(url);
-  alert('Datos exportados correctamente.');
 });
 
 // Importar datos desde un archivo JSON
-importFileInput.addEventListener('change', (event) => {
+importFileInput.addEventListener('change', event => {
   const file = event.target.files[0];
-
   if (file) {
     const reader = new FileReader();
-
-    reader.onload = (e) => {
+    reader.onload = e => {
       try {
         const data = JSON.parse(e.target.result);
         categories = data.categories || [];
         products = data.products || [];
         renderCategories();
         renderProducts();
-        saveToLocalStorage();
-        alert('Datos importados correctamente. Los datos locales han sido sobrescritos.');
+        alert('Datos importados exitosamente.');
       } catch (error) {
-        alert('Error al importar el archivo JSON. Asegúrate de que el archivo sea válido.');
+        alert('Error al importar los datos. Asegúrate de que el archivo sea válido.');
       }
     };
-
     reader.readAsText(file);
   }
 });
 
-// Función para imprimir el ticket
+// Imprimir ticket usando jsPDF
 printTicketBtn.addEventListener('click', () => {
-  if (cart.length === 0) {
-    alert('No hay productos en el ticket para imprimir.');
-    return;
-  }
+  const doc = new jspdf.jsPDF();
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  doc.text('Ticket de Compra', 10, 10);
+  doc.text(`Fecha: ${new Date().toLocaleString()}`, 10, 20);
+  doc.text('----------------------------------------', 10, 30);
 
-  // Detalles del ticket
-  const date = new Date();
-  const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  const ticketDetails = `Ticket #${ticketNumber}\nFecha: ${formattedDate}\n\n`;
+  let yPos = 40;
+  let total = 0;
 
-  let yOffset = 20;
-  doc.setFontSize(18);
-  doc.text('Ticket de Venta', 10, 10);
-
-  doc.setFontSize(12);
-  doc.text(ticketDetails, 10, yOffset);
-  yOffset += 20;
-
-  cart.forEach((item) => {
-    doc.text(`${item.name} - ${item.price.toFixed(2)} €`, 10, yOffset);
-    yOffset += 10;
+  cart.forEach((item, index) => {
+    doc.text(`${item.name} - ${item.price.toFixed(2)} €`, 10, yPos);
+    yPos += 10;
+    total += item.price;
   });
 
-  doc.setFontSize(14);
-  doc.text(`Total: ${totalAmount.textContent}`, 10, yOffset + 10);
+  doc.text('----------------------------------------', 10, yPos);
+  yPos += 10;
+  doc.text(`Total: ${total.toFixed(2)} €`, 10, yPos);
 
-  doc.autoPrint();
-  doc.output('dataurlnewwindow');
-
-  ticketNumber++;
+  doc.save(`ticket-${ticketNumber++}.pdf`);
 });
 
-// Cargar datos al iniciar la aplicación
+// Cargar datos al iniciar
 loadFromLocalStorage();
