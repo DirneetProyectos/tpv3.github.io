@@ -128,6 +128,7 @@ function deleteCategory(index) {
   categories.splice(index, 1);
   renderCategories();
   renderSubcategories();
+  saveToLocalStorage();
 }
 
 // Función para añadir una categoría
@@ -191,6 +192,7 @@ function updateSubcategoryName(categoryIndex, subcategoryIndex, newName) {
 function deleteSubcategory(categoryIndex, subcategoryIndex) {
   categories[categoryIndex].subcategories.splice(subcategoryIndex, 1);
   renderSubcategories();
+  saveToLocalStorage();
 }
 
 // Función para añadir una subcategoría
@@ -337,9 +339,10 @@ function editProduct(categoryIndex, subcategoryIndex, productIndex) {
 function deleteProduct(categoryIndex, subcategoryIndex, productIndex) {
   categories[categoryIndex].subcategories[subcategoryIndex].products.splice(productIndex, 1);
   renderProducts();
+  saveToLocalStorage();
 }
 
-// Función para agregar un producto al ticket
+// Función para añadir un producto al ticket
 function addProductToCart(productName, productPrice) {
   cart.push({ name: productName, price: productPrice, quantity: 1 });
   updateTicket();
@@ -413,8 +416,12 @@ importFileInput.addEventListener('change', event => {
 
 // Imprimir ticket usando jsPDF
 printTicketBtn.addEventListener('click', () => {
-  const doc = new jspdf.jsPDF();
+  if (cart.length === 0) {
+    alert('El ticket está vacío.');
+    return;
+  }
 
+  const doc = new jspdf.jsPDF();
   doc.text('Ticket de Compra', 10, 10);
   doc.text(`Fecha: ${new Date().toLocaleString()}`, 10, 20);
   doc.text('----------------------------------------', 10, 30);
@@ -423,7 +430,7 @@ printTicketBtn.addEventListener('click', () => {
   let total = 0;
 
   cart.forEach((item, index) => {
-    doc.text(`${item.name} - ${item.price.toFixed(2)} €`, 10, yPos);
+    doc.text(`${index + 1}. ${item.name} - ${item.price.toFixed(2)} €`, 10, yPos);
     yPos += 10;
     total += item.price;
   });
@@ -432,30 +439,18 @@ printTicketBtn.addEventListener('click', () => {
   yPos += 10;
   doc.text(`Total: ${total.toFixed(2)} €`, 10, yPos);
 
-  doc.save(`ticket-${ticketNumber++}.pdf`);
+  doc.save(`ticket_${ticketNumber++}.pdf`);
 });
 
-// Botón "Reiniciar"
+// Reiniciar datos
 resetDataBtn.addEventListener('click', () => {
-  const confirmReset = confirm('¿Estás seguro de que quieres eliminar todos los datos almacenados? Esta acción no se puede deshacer.');
-  if (confirmReset) {
-    localStorage.removeItem('tpv_data'); // Eliminar datos de localStorage
-    categories = []; // Limpiar las variables
+  if (confirm('¿Estás seguro de que quieres reiniciar todos los datos? Esta acción no se puede deshacer.')) {
+    categories = [];
     cart = [];
-    updateTicket(); // Limpiar el ticket
-    renderCategories(); // Limpiar la interfaz
-    renderSubcategories();
-    renderProducts();
-    renderCategoriesButtons();
-    alert('Todos los datos han sido eliminados.');
+    saveToLocalStorage();
+    location.reload();
   }
 });
 
-// Botón "Guardar"
-saveChangesBtn.addEventListener('click', () => {
-  saveToLocalStorage();
-  alert('Cambios guardados exitosamente.');
-});
-
-// Cargar datos al iniciar
+// Inicializar la aplicación
 loadFromLocalStorage();
