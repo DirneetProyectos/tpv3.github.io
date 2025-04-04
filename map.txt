@@ -1,0 +1,11 @@
+/tpv-project
+  ├── index.html
+  ├── styles.css
+  ├── script.js (Archivo principal)
+  ├── modules/
+      ├── categories.js
+      ├── products.js
+      ├── ticket.js
+      ├── modal.js
+      ├── menu.js
+      ├── data.js
