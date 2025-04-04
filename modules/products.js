@@ -1,4 +1,9 @@
 export function renderProducts(categories, productsButtons) {
+  if (!productsButtons) {
+    console.error('El elemento "productsButtons" no está presente en el DOM.');
+    return;
+  }
+
   productsButtons.innerHTML = '';
 
   categories.forEach((category, catIndex) => {

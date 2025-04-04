@@ -1,4 +1,9 @@
 export function renderCategories(categories, categoriesList, categorySelect, productCategorySelect) {
+  if (!categoriesList || !categorySelect || !productCategorySelect) {
+    console.error('Uno o más elementos requeridos no están presentes en el DOM.');
+    return;
+  }
+
   categoriesList.innerHTML = '';
   categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
   productCategorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
